@@ -3,5 +3,11 @@
   "version": "0.1.0",
   "manifest_version": 3,
   "description": "Find and download SVG images",
-  "default_locale": "en"
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["activeTab", "scripting"],
+  "action": {
+    "default_popup": "popup.html"
+  }
 }
