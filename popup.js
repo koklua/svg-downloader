@@ -14,6 +14,24 @@ async function listAllSVGElements() {
     for (const item of response[0].result) {
         let li = document.createElement('li');
         li.innerHTML = item;
+        let button = document.createElement('button')
+        button.innerHTML = "Download"
+        li.appendChild(button)
         list.append(li);
+        button.addEventListener("click", handleButtonClick);
     };
 }
+
+function handleButtonClick(event) {
+    
+    let svgElements = Array.from(event.target.parentElement.getElementsByTagName('svg'))
+    
+    if (svgElements.length > 0) {
+        let svgElement = svgElements[0]
+        console.log(svgElement)
+        // TODO: download image
+    } else {
+        // TODO: Error message
+    }
+}
+
