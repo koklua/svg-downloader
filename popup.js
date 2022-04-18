@@ -17,9 +17,10 @@ async function listAllSVGElements() {
         var downloadLink = generateDownloadLink(item);
         let button = document.createElement('button')
         button.innerHTML = "Download"
-        li.appendChild(button)
+        li.appendChild(button);
         list.append(li);
-        //button.addEventListener("click", handleButtonClick);
+        button.appendChild(downloadLink);
+        button.addEventListener("click", handleClick);
     };
 }
 
@@ -44,11 +45,18 @@ function generateDownloadLink(item) {
     var downloadLink = document.createElement("a");
     downloadLink.href = url;
     downloadLink.download = getRandomSvgName();
-    console.log(downloadLink);
     return downloadLink;
-    //document.body.appendChild(downloadLink);
-    //downloadLink.click();
-    //document.body.removeChild(downloadLink);*/
+}
+
+function handleClick(event) {
+    let linkElements = Array.from(event.target.parentElement.getElementsByTagName('a'))
+    
+    if (linkElements.length > 0) {
+        let downloadLink = linkElements[0]
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }
 }
 
 const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
