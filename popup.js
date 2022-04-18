@@ -47,9 +47,10 @@ function handleButtonClick(event) {
         //convert svg source to URI data scheme.
         var url = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(source);
 
+        //set url value to a element's href attribute.
         var downloadLink = document.createElement("a");
         downloadLink.href = url;
-        downloadLink.download = "image.svg";
+        downloadLink.download = getRandomSvgName();
         document.body.appendChild(downloadLink);
         downloadLink.click();
         document.body.removeChild(downloadLink);
@@ -58,3 +59,14 @@ function handleButtonClick(event) {
     }
 }
 
+const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+const nameLength = 10;
+
+function getRandomSvgName() {
+    let result = '';
+    const charactersLength = characters.length;
+    for ( let i = 0; i < nameLength; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result + ".svg";
+}
