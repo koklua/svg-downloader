@@ -14,49 +14,41 @@ async function listAllSVGElements() {
     for (const item of response[0].result) {
         let li = document.createElement('li');
         li.innerHTML = item;
+        var downloadLink = generateDownloadLink(item);
         let button = document.createElement('button')
         button.innerHTML = "Download"
         li.appendChild(button)
         list.append(li);
-        button.addEventListener("click", handleButtonClick);
+        //button.addEventListener("click", handleButtonClick);
     };
 }
 
-function handleButtonClick(event) {
+function generateDownloadLink(item) {
+    var source = item
     
-    let svgElements = Array.from(event.target.parentElement.getElementsByTagName('svg'))
-    
-    if (svgElements.length > 0) {
-        let svgElement = svgElements[0]
-
-        // download svg
-        var serializer = new XMLSerializer();
-        var source = serializer.serializeToString(svgElement);
-
-        //add name spaces.
-        if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
-            source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
-        }
-        if(!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)){
-            source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
-        }
-
-        //add xml declaration
-        source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
-
-        //convert svg source to URI data scheme.
-        var url = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(source);
-
-        //set url value to a element's href attribute.
-        var downloadLink = document.createElement("a");
-        downloadLink.href = url;
-        downloadLink.download = getRandomSvgName();
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-    } else {
-        // TODO: Error message
+    //add name spaces.
+    if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
+        source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
     }
+    if(!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)){
+        source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+    }
+
+    //add xml declaration
+    source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+
+    //convert svg source to URI data scheme.
+    var url = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(source);
+
+    //set url value to a element's href attribute.
+    var downloadLink = document.createElement("a");
+    downloadLink.href = url;
+    downloadLink.download = getRandomSvgName();
+    console.log(downloadLink);
+    return downloadLink;
+    //document.body.appendChild(downloadLink);
+    //downloadLink.click();
+    //document.body.removeChild(downloadLink);*/
 }
 
 const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
