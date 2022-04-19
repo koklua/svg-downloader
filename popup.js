@@ -15,8 +15,8 @@ async function listAllSVGElements() {
         let li = document.createElement('li');
         li.innerHTML = item;
         var downloadLink = generateDownloadLink(item);
-        let button = document.createElement('button')
-        button.innerHTML = "Download"
+        let button = document.createElement('button');
+        button.innerHTML = "Download";
         li.appendChild(button);
         list.append(li);
         button.appendChild(downloadLink);
@@ -49,7 +49,7 @@ function generateDownloadLink(item) {
 }
 
 function handleClick(event) {
-    let linkElements = Array.from(event.target.parentElement.getElementsByTagName('a'))
+    let linkElements = Array.from(event.target.parentElement.getElementsByTagName('a'));
     
     if (linkElements.length > 0) {
         let downloadLink = linkElements[0]
