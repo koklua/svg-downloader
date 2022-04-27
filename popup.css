@@ -1,0 +1,44 @@
+:root {
+    --font-main: "Helvetica Neue";
+    --font-tooltip: "InaiMathi";
+    --color-background: #FEFEFE;
+    --color-background-selected: #F7F7F7;
+    --color-highlight: #4BD2C2;
+    --color-title: #3B4246;
+    --color-label: #3C4347;
+    --color-input-text: #101010;
+    --color-input-border: #B7AFAF;
+    --color-button: #CFD9E0;
+    --color-divider: #E4E4E4;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--color-background);
+    width: 201.5px;
+}
+
+header {
+    height: 26px;
+}
+
+main {
+    height: 207px;
+}
+
+footer {
+    height: 32px;
+}
+
+ul {
+    margin : 0;
+}
+
+ul > li {
+    height: 60px;
+}
