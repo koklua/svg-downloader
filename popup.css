@@ -1,6 +1,5 @@
 :root {
-    --font-main: "Helvetica Neue";
-    --font-tooltip: "InaiMathi";
+    --font-main: Helvetica, Arial;
     --color-background: #FEFEFE;
     --color-background-selected: #F7F7F7;
     --color-highlight: #4BD2C2;
