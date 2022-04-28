@@ -23,7 +23,11 @@ body {
 }
 
 header {
-    height: 26px;
+    height: 15px;
+    margin: 6px;
+    padding-left: 5px;
+    font-size: 13px;
+    color: var(--color-title);
 }
 
 main {
