@@ -8,7 +8,7 @@
     --color-input-text: #101010;
     --color-input-border: #B7AFAF;
     --color-button: #CFD9E0;
-    --color-divider: #E4E4E4;
+    --color-divider: #DEDEDE;
 }
 
 html, body {
@@ -19,7 +19,7 @@ html, body {
 body {
     font-family: var(--font-main);
     background-color: var(--color-background);
-    width: 201.5px;
+    width: 202px;
 }
 
 header {
@@ -32,6 +32,12 @@ header {
 
 main {
     height: 207px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+main::-webkit-scrollbar{
+    display: none;
 }
 
 footer {
@@ -44,11 +50,17 @@ footer {
 }
 
 ul {
-    margin : 0;
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
 }
 
 ul > li {
     height: 60px;
+    margin: 0 6px;
+    border-bottom: 0.5px solid var(--color-divider);
+}
+
 button {
     cursor: pointer;
     background: none;
