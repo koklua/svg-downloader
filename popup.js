@@ -13,14 +13,59 @@ async function listAllSVGElements() {
     let list = document.getElementById('svgList');
     for (const item of response[0].result) {
         let li = document.createElement('li');
-        li.innerHTML = item;
+
+        //add checkbox
+        let checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.classList.add('checkbox');
+        li.appendChild(checkbox);
+
+        //add svg display
+        let svgItem = document.createElement('svg');
+        li.appendChild(svgItem);
+        svgItem.outerHTML = item;
+
+        //add name display
+        let nameLabel = document.createElement('div');
+        nameLabel.innerHTML = 'Name:';
+        li.appendChild(nameLabel);
+        let nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.classList.add('name-input')
+        li.appendChild(nameInput);
+        
+        //add dimensions
+        let heightLabel = document.createElement('div');
+        heightLabel.innerHTML = 'Height:';
+        li.appendChild(heightLabel);
+        let heightInput = document.createElement('input');
+        heightInput.type = 'text';
+        heightInput.classList.add('dimension-input');
+        li.appendChild(heightInput);
+
+        let widthLabel = document.createElement('div');
+        widthLabel.innerHTML = 'Width:';
+        li.appendChild(widthLabel);
+        let widthInput = document.createElement('input');
+        widthInput.type = 'text';
+        widthInput.classList.add('dimension-input');
+        li.appendChild(widthInput);
+
+        //add download button
         var downloadLink = generateDownloadLink(item);
-        let button = document.createElement('button');
-        button.innerHTML = "Download";
-        li.appendChild(button);
+        let downloadButton = document.createElement('button');
+        downloadButton.classList.add('download-button');
+        downloadButton.innerHTML = "Download";
+        li.appendChild(downloadButton);
+        downloadButton.appendChild(downloadLink);
+        downloadButton.addEventListener("click", handleClick);
+
+        //add code copy button
+        let copyButton = document.createElement('button');
+        copyButton.classList.add('copy-button');
+        li.appendChild(copyButton);
+
         list.append(li);
-        button.appendChild(downloadLink);
-        button.addEventListener("click", handleClick);
     };
 }
 
