@@ -17,7 +17,6 @@ async function listAllSVGElements() {
         //add checkbox
         let checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.classList.add('checkbox');
         li.appendChild(checkbox);
 
         //add svg display
@@ -25,37 +24,49 @@ async function listAllSVGElements() {
         li.appendChild(svgItem);
         svgItem.outerHTML = item;
 
+        let infoContainer = document.createElement('div');
+        infoContainer.classList.add('info-container');
+        li.appendChild(infoContainer);
+
         //add name display
-        let nameLabel = document.createElement('div');
+        let nameContainer = document.createElement('div');
+        nameContainer.classList.add('name-container');
+        infoContainer.appendChild(nameContainer);
+
+        let nameLabel = document.createElement('span');
         nameLabel.innerHTML = 'Name:';
-        li.appendChild(nameLabel);
+        nameContainer.appendChild(nameLabel);
         let nameInput = document.createElement('input');
         nameInput.type = 'text';
-        nameInput.classList.add('name-input')
-        li.appendChild(nameInput);
+        nameContainer.appendChild(nameInput);
         
         //add dimensions
-        let heightLabel = document.createElement('div');
+        let dimensionsContainer = document.createElement('div');
+        dimensionsContainer.classList.add('dimensions-container');
+        infoContainer.appendChild(dimensionsContainer);
+
+        let heightContainer = document.createElement('div');
+        dimensionsContainer.appendChild(heightContainer);
+        let heightLabel = document.createElement('span');
         heightLabel.innerHTML = 'Height:';
-        li.appendChild(heightLabel);
+        heightContainer.appendChild(heightLabel);
         let heightInput = document.createElement('input');
         heightInput.type = 'text';
-        heightInput.classList.add('dimension-input');
-        li.appendChild(heightInput);
+        heightContainer.appendChild(heightInput);
 
-        let widthLabel = document.createElement('div');
+        let widthContainer = document.createElement('div');
+        dimensionsContainer.appendChild(widthContainer);
+        let widthLabel = document.createElement('span');
         widthLabel.innerHTML = 'Width:';
-        li.appendChild(widthLabel);
+        widthContainer.appendChild(widthLabel);
         let widthInput = document.createElement('input');
         widthInput.type = 'text';
-        widthInput.classList.add('dimension-input');
-        li.appendChild(widthInput);
+        widthContainer.appendChild(widthInput);
 
         //add download button
         var downloadLink = generateDownloadLink(item);
         let downloadButton = document.createElement('button');
         downloadButton.classList.add('download-button');
-        downloadButton.innerHTML = "Download";
         li.appendChild(downloadButton);
         downloadButton.appendChild(downloadLink);
         downloadButton.addEventListener("click", handleClick);

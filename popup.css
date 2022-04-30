@@ -56,9 +56,55 @@ ul {
 }
 
 ul > li {
+    display: flex;
     height: 60px;
     margin: 0 6px;
     border-bottom: 0.5px solid var(--color-divider);
+}
+
+svg {
+    height: 50px;
+    width: 50px;
+}
+
+.info-container {
+    height: 50px;
+    width: 54px;
+}
+
+.name-container {
+    height: 24px;
+    width: 54px;
+}
+
+.name-container > span {
+    height: 9px;
+    width: 54px;
+    font-size: 9px;
+}
+
+.name-container > input {
+    height: 12px;
+    width: 48px;
+    border: 0.5px solid var(--color-input-border);
+}
+
+.dimensions-container {
+    display: flex;
+    height: 16px;
+    width: 54px;
+}
+
+.dimensions-container > div > span {
+    height: 7px;
+    width: 20px;
+    font-size: 6px;
+}
+
+.dimensions-container > div > input {
+    height: 6px;
+    width: 15px;
+    border: 0.5px solid var(--color-input-border);
 }
 
 button {
@@ -66,6 +112,26 @@ button {
     background: none;
     border: 0;
     padding: 0;
+}
+
+ul > li > button {
+    width: 18px;
+    height: 18px;
+    border: 0;
+    opacity: 1;
+    background-color: var(--color-button);
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.download-button {
+    padding: 3.5px;
+    background-image: url(images/icon-download.svg);
+}
+
+.copy-button {
+    padding: 3px;
+    background-image: url(images/icon-copy.svg);
 }
 
 #selectAll {
@@ -104,4 +170,12 @@ button {
     background-image: url(images/icon-download.svg);
     background-repeat: no-repeat;
     content: "";
+}
+
+input[type="checkbox"] {
+    appearance: none;
+    border: 1px solid var(--color-label);
+    border-radius: 4px;
+    width: 15px;
+    height: 15px;
 }
