@@ -67,6 +67,7 @@ async function listAllSVGElements() {
         var downloadLink = generateDownloadLink(item);
         let downloadButton = document.createElement('button');
         downloadButton.classList.add('download-button');
+        downloadButton.title = 'Download';
         li.appendChild(downloadButton);
         downloadButton.appendChild(downloadLink);
         downloadButton.addEventListener("click", handleClick);
@@ -74,6 +75,7 @@ async function listAllSVGElements() {
         //add code copy button
         let copyButton = document.createElement('button');
         copyButton.classList.add('copy-button');
+        copyButton.title = 'Copy SVG as code'
         li.appendChild(copyButton);
 
         list.append(li);

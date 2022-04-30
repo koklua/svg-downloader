@@ -149,6 +149,11 @@ ul > li > button {
     background-position: center;
     background-repeat: no-repeat;
     align-self: flex-end;
+    transition: background-color .25s;
+}
+
+ul > li > button:hover {
+    background-color: var(--color-highlight);
 }
 
 .download-button {
