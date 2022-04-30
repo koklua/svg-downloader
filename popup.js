@@ -38,6 +38,7 @@ async function listAllSVGElements() {
         nameContainer.appendChild(nameLabel);
         let nameInput = document.createElement('input');
         nameInput.type = 'text';
+        nameInput.value = getRandomSvgName();
         nameContainer.appendChild(nameInput);
         
         //add dimensions
@@ -64,7 +65,7 @@ async function listAllSVGElements() {
         widthContainer.appendChild(widthInput);
 
         //add download button
-        var downloadLink = generateDownloadLink(item);
+        var downloadLink = generateDownloadLink(nameInput.value, item);
         let downloadButton = document.createElement('button');
         downloadButton.classList.add('download-button');
         downloadButton.title = 'Download';
@@ -82,7 +83,7 @@ async function listAllSVGElements() {
     };
 }
 
-function generateDownloadLink(item) {
+function generateDownloadLink(filename, item) {
     var source = item
     
     //add name spaces.
@@ -102,7 +103,7 @@ function generateDownloadLink(item) {
     //set url value to a element's href attribute.
     var downloadLink = document.createElement("a");
     downloadLink.href = url;
-    downloadLink.download = getRandomSvgName();
+    downloadLink.download = filename + '.svg';
     return downloadLink;
 }
 
@@ -126,5 +127,5 @@ function getRandomSvgName() {
     for ( let i = 0; i < nameLength; i++ ) {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
-    return result + ".svg";
+    return result;
 }
