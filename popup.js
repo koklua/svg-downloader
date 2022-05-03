@@ -12,7 +12,9 @@ async function listAllSVGElements() {
 
     let list = document.getElementById('svgList');
     for (const item of response[0].result) {
+        //generate a list element for each svg found
         let li = document.createElement('li');
+        li.id = getRandomSvgName();
 
         //add checkbox
         let checkbox = document.createElement('input');
@@ -38,8 +40,14 @@ async function listAllSVGElements() {
         nameContainer.appendChild(nameLabel);
         let nameInput = document.createElement('input');
         nameInput.type = 'text';
-        nameInput.value = getRandomSvgName();
+        nameInput.value = li.id;
         nameContainer.appendChild(nameInput);
+
+        //update file name on name input change (only fired on focus lost)
+        nameInput.addEventListener('change', (event) => {
+            var downloadLink = document.getElementById(li.id + '-download');
+            downloadLink.download = event.target.value + '.svg';
+        });
         
         //add dimensions
         let dimensionsContainer = document.createElement('div');
@@ -65,7 +73,7 @@ async function listAllSVGElements() {
         widthContainer.appendChild(widthInput);
 
         //add download button
-        var downloadLink = generateDownloadLink(nameInput.value, item);
+        var downloadLink = generateDownloadLink(li.id, item);
         let downloadButton = document.createElement('button');
         downloadButton.classList.add('download-button');
         downloadButton.title = 'Download';
@@ -102,6 +110,7 @@ function generateDownloadLink(filename, item) {
 
     //set url value to a element's href attribute.
     var downloadLink = document.createElement("a");
+    downloadLink.id = filename + '-download';
     downloadLink.href = url;
     downloadLink.download = filename + '.svg';
     return downloadLink;
