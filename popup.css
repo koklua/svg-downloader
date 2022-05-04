@@ -49,6 +49,13 @@ footer {
     border-top: 1px solid var(--color-title);
 }
 
+button {
+    cursor: pointer;
+    background: none;
+    border: 0;
+    padding: 0;
+}
+
 ul {
     margin: 0;
     padding: 0;
@@ -137,17 +144,24 @@ svg.dark-background {
     font-size: 5px;
 }
 
-button {
-    cursor: pointer;
-    background: none;
-    border: 0;
-    padding: 0;
+.dimensions-container > button {
+    display: grid;
+    width: 4px;
+    height: 5px;
+    align-self: flex-end;
+}
+
+.lock-button {
+    background-image: url(images/icon-unlocked.svg);
+}
+
+.unlock-button {
+    background-image: url(images/icon-locked.svg);
 }
 
 ul > li > button {
     width: 18px;
     height: 18px;
-    border: 0;
     opacity: 1;
     margin: 5px 2px;
     background-color: var(--color-button);

@@ -72,6 +72,12 @@ async function listAllSVGElements() {
         widthInput.type = 'text';
         widthContainer.appendChild(widthInput);
 
+        //add aspect ratio lock
+        let lockButton = document.createElement('button');
+        lockButton.classList.add('lock-button');
+        lockButton.title = 'Maintain aspect ratio';
+        dimensionsContainer.appendChild(lockButton);
+
         //add download button
         var downloadLink = generateDownloadLink(li.id, item);
         let downloadButton = document.createElement('button');
