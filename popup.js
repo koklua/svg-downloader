@@ -54,15 +54,6 @@ async function listAllSVGElements() {
         dimensionsContainer.classList.add('dimensions-container');
         infoContainer.appendChild(dimensionsContainer);
 
-        let heightContainer = document.createElement('div');
-        dimensionsContainer.appendChild(heightContainer);
-        let heightLabel = document.createElement('span');
-        heightLabel.innerHTML = 'Height:';
-        heightContainer.appendChild(heightLabel);
-        let heightInput = document.createElement('input');
-        heightInput.type = 'text';
-        heightContainer.appendChild(heightInput);
-
         let widthContainer = document.createElement('div');
         dimensionsContainer.appendChild(widthContainer);
         let widthLabel = document.createElement('span');
@@ -71,6 +62,15 @@ async function listAllSVGElements() {
         let widthInput = document.createElement('input');
         widthInput.type = 'text';
         widthContainer.appendChild(widthInput);
+
+        let heightContainer = document.createElement('div');
+        dimensionsContainer.appendChild(heightContainer);
+        let heightLabel = document.createElement('span');
+        heightLabel.innerHTML = 'Height:';
+        heightContainer.appendChild(heightLabel);
+        let heightInput = document.createElement('input');
+        heightInput.type = 'text';
+        heightContainer.appendChild(heightInput);
 
         //add aspect ratio lock
         let lockButton = document.createElement('button');
