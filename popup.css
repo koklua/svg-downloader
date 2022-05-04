@@ -19,19 +19,19 @@ html, body {
 body {
     font-family: var(--font-main);
     background-color: var(--color-background);
-    width: 202px;
+    width: 250px;
 }
 
 header {
-    height: 15px;
-    margin: 6px;
+    height: 18px;
+    margin: 7px;
     padding-left: 5px;
-    font-size: 13px;
+    font-size: 16px;
     color: var(--color-title);
 }
 
 main {
-    height: 207px;
+    height: 258px;
     overflow-x: hidden;
     overflow-y: scroll;
 }
@@ -41,8 +41,8 @@ main::-webkit-scrollbar{
 }
 
 footer {
-    height: 32px;
-    margin: 0 6px;
+    height: 40px;
+    margin: 0 7px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -65,24 +65,25 @@ ul {
 ul > li {
     display: flex;
     align-items: center;
-    height: 60px;
-    margin: 0 6px;
-    border-bottom: 0.5px solid var(--color-divider);
+    height: 76px;
+    margin: 0 7px;
+    border-bottom: 1px solid var(--color-divider);
 }
 
 input[type="checkbox"] {
     appearance: none;
     border: 1px solid var(--color-label);
-    border-radius: 4px;
-    width: 15px;
-    height: 15px;
-    margin: 4px;
+    border-radius: 5px;
+    background-color: #FFFFFF;
+    width: 18px;
+    height: 18px;
+    margin: 5px;
 }
 
 svg {
-    height: 50px;
-    width: 50px;
-    margin: 5px;
+    height: 64px;
+    width: 64px;
+    margin: 6px;
     background: repeating-conic-gradient(#E3E8EB 0deg  90deg,#FFFFFF 0 180deg) 0 0/20% 20%;
 }
 
@@ -91,63 +92,67 @@ svg.dark-background {
 }
 
 .info-container {
-    height: 50px;
-    width: 54px;
-    margin: 5px 3px;
+    height: 64px;
+    width: 68px;
+    margin: 6px 4px;
 }
 
 .name-container {
-    display: grid;
-    height: 29px;
-    width: 54px;
-    margin-bottom: 2px;
+    height: 34px;
+    width: 68px;
+    margin: 3px 0px;
 }
 
 .name-container > span {
-    margin: 4px 0px 1px 0px;
-    height: 9px;
-    width: 54px;
-    font-size: 8px;
+    margin: 4px 0px 2px 0px;
+    height: 11px;
+    width: 68px;
+    font-size: 11px;
+    font-weight: bold;
 }
 
 .name-container > input {
-    height: 11px;
-    width: 48px;
-    border: 0.5px solid var(--color-input-border);
+    height: 16px;
+    width: 62px;
+    border: 1px solid var(--color-input-border);
     font-family: var(--font-main);
-    font-size: 7px;
+    font-size: 9px;
 }
 
 .dimensions-container {
     display: flex;
-    height: 16px;
-    width: 54px;
+    height: 22px;
+    width: 68px;
 }
 
 .dimensions-container > div {
     display: grid;
-    margin-right: 8px;
+    margin-right: 6px;
 }
 
 .dimensions-container > div > span {
-    height: 7px;
-    width: 20px;
-    font-size: 6px;
+    width: 27px;
+    font-size: 7px;
+    font-weight: bold;
     margin-bottom: 1px; 
 }
 
 .dimensions-container > div > input {
-    height: 6px;
-    width: 15px;
-    border: 0.5px solid var(--color-input-border);
+    height: 9px;
+    width: 20px;
+    border: 1px solid var(--color-input-border);
     font-family: var(--font-main);
-    font-size: 5px;
+    font-size: 7px;
 }
 
 .dimensions-container > button {
     display: grid;
-    width: 4px;
-    height: 5px;
+    width: 7px;
+    height: 8px;
+    margin: 0px 0px 1px -4px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 6px;
     align-self: flex-end;
 }
 
@@ -160,13 +165,14 @@ svg.dark-background {
 }
 
 ul > li > button {
-    width: 18px;
-    height: 18px;
+    width: 22px;
+    height: 22px;
     opacity: 1;
-    margin: 5px 2px;
+    margin: 9px 3px;
     background-color: var(--color-button);
     background-position: center;
     background-repeat: no-repeat;
+    background-size: 14px;
     align-self: flex-end;
     transition: background-color .25s;
 }
@@ -184,40 +190,42 @@ ul > li > button:hover {
 }
 
 #selectAll {
-    height: 12px;
-    padding: 0 5px;
+    height: 15px;
+    padding: 0 6px;
 }
 
 #selectAll > span {
     display: flex;
     justify-content: center;
     color: var(--color-highlight);
-    font-size: 8px;
+    font-size: 10px;
     font-weight: bold;
 }
 
 #downloadSelected {
     background-color: var(--color-highlight);
-    width: 95px;
-    height: 18px;
+    width: 118px;
+    height: 22px;
 }
 
 #downloadSelected > span {
     display: flex;
     justify-content: center;
     color: #FFFFFF;
-    height: 11px;
-    line-height: 11px;
-    font-size: 8px;
+    height: 15px;
+    line-height: 15px;
+    font-size: 10px;
 }
 
 #downloadSelected span::before {
     display: inline-block;
-    height: 11px;
-    width: 11px;
-    margin-right: 4px;
+    height: 14px;
+    width: 14px;
+    margin-right: 5px;
     background-image: url(images/icon-download.svg);
     background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
     content: "";
 }
 
