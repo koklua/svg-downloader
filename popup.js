@@ -46,14 +46,12 @@ async function listAllSVGElements() {
         nameContainer.appendChild(nameLabel);
         let nameInput = document.createElement('input');
         nameInput.type = 'text';
+        nameInput.id = li.id + '-name';
         nameInput.value = li.id;
         nameContainer.appendChild(nameInput);
 
         //update file name on name input change (only fired on focus lost)
-        nameInput.addEventListener('change', (event) => {
-            var downloadLink = document.getElementById(li.id + '-download');
-            downloadLink.download = event.target.value + '.svg';
-        });
+        nameInput.addEventListener('change', updateSvgName);
         
         //add dimensions
         let dimensionsContainer = document.createElement('div');
@@ -149,6 +147,12 @@ function getRandomSvgName() {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
+}
+
+function updateSvgName(event) {
+    var svgId = event.target.id.split('-')[0];
+    var downloadLink = document.getElementById(svgId + '-download');
+    downloadLink.download = event.target.value + '.svg';
 }
 
 function onCheckboxInput(event) {
