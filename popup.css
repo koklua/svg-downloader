@@ -70,6 +70,10 @@ ul > li {
     border-bottom: 1px solid var(--color-divider);
 }
 
+.list-selected {
+    background-color: var(--color-background-selected);
+}
+
 input[type="checkbox"] {
     appearance: none;
     border: 1px solid var(--color-label);

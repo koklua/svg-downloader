@@ -19,7 +19,9 @@ async function listAllSVGElements() {
         //add checkbox
         let checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
+        checkbox.value = 'unchecked';
         li.appendChild(checkbox);
+        checkbox.addEventListener('input', onCheckboxInput);
 
         //add svg display
         let svgItem = document.createElement('svg');
@@ -147,4 +149,16 @@ function getRandomSvgName() {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
+}
+
+function onCheckboxInput(event) {
+    console.log(event.target.value);
+    if(event.target.value === 'unchecked'){
+        event.target.value = 'checked';
+        event.target.parentElement.classList.add('list-selected');
+    }
+    else {
+        event.target.value = 'unchecked';
+        event.target.parentElement.classList.remove('list-selected');
+    }
 }
