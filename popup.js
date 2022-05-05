@@ -91,7 +91,7 @@ async function listAllSVGElements() {
         downloadButton.title = 'Download';
         li.appendChild(downloadButton);
         downloadButton.appendChild(downloadLink);
-        downloadButton.addEventListener("click", handleClick);
+        downloadButton.addEventListener("click", handleDownloadClick);
 
         //add code copy button
         let copyButton = document.createElement('button');
@@ -128,7 +128,7 @@ function generateDownloadLink(filename, item) {
     return downloadLink;
 }
 
-function handleClick(event) {
+function handleDownloadClick(event) {
     let linkElements = Array.from(event.target.parentElement.getElementsByTagName('a'));
     
     if (linkElements.length > 0) {
