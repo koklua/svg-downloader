@@ -26,6 +26,10 @@ async function listAllSVGElements() {
         li.appendChild(svgItem);
         svgItem.outerHTML = item;
 
+        //TO DO: get dimension info from the svg
+
+        //TO DO: add or update SVG viewBox attribute to prevent overflow
+
         let infoContainer = document.createElement('div');
         infoContainer.classList.add('info-container');
         li.appendChild(infoContainer);
