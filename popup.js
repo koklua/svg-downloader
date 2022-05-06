@@ -123,6 +123,10 @@ async function listAllSVGElements() {
 
         list.append(li);
     };
+
+    //add functions to footer buttons
+    let selectAllButton = document.getElementById('selectAll');
+    selectAllButton.addEventListener('click', selectAll);
 }
 
 function generateSVGDataUri(item) {
@@ -172,6 +176,17 @@ function onCheckboxInput(event) {
         event.target.parentElement.classList.remove('list-selected');
         itemCounter.selected -= 1;
     }
+}
+
+function selectAll() {
+    let list = document.getElementById('svgList');
+    for (let i = 0; i < list.children.length; i++) {
+        if (list.children[i].firstChild.checked === false) {
+            list.children[i].classList.add('list-selected');
+            list.children[i].firstChild.checked = true;
+        }
+    }
+    itemCounter.selected = itemCounter.total;
 }
 
 function onSelectedChange() {
