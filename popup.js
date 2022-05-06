@@ -16,6 +16,9 @@ async function listAllSVGElements() {
         let li = document.createElement('li');
         li.id = getRandomSvgName();
 
+        //generate download link for svg image 
+        var downloadLink = generateDownloadLink(item);
+
         //add checkbox
         let checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
@@ -24,13 +27,16 @@ async function listAllSVGElements() {
         checkbox.addEventListener('input', onCheckboxInput);
 
         //add svg display
-        let svgItem = document.createElement('svg');
-        li.appendChild(svgItem);
-        svgItem.outerHTML = item;
+        let svgContainer = document.createElement('div');
+        li.appendChild(svgContainer);
+        svgContainer.classList.add('svg-container');
+        svgContainer.classList.add('svg-light-background');
+        let svgPreview = document.createElement('div');
+        svgPreview.classList.add('svg-preview');
+        svgPreview.style.backgroundImage = 'url("' + downloadLink + '")';
+        svgContainer.appendChild(svgPreview);
 
         //TO DO: get dimension info from the svg
-
-        //TO DO: add or update SVG viewBox attribute to prevent overflow
 
         let infoContainer = document.createElement('div');
         infoContainer.classList.add('info-container');
@@ -83,7 +89,10 @@ async function listAllSVGElements() {
         dimensionsContainer.appendChild(lockButton);
 
         //add download button
-        var downloadButton = generateDownloadLink(li.id, item);
+        var downloadButton = document.createElement("a");
+        downloadButton.id = li.id + '-download';
+        downloadButton.href = downloadLink;
+        downloadButton.download = li.id + '.svg';
         downloadButton.classList.add('list-button');
         downloadButton.classList.add('download-button');
         downloadButton.title = 'Download';
@@ -100,7 +109,7 @@ async function listAllSVGElements() {
     };
 }
 
-function generateDownloadLink(filename, item) {
+function generateDownloadLink(item) {
     var source = item
     
     //add name spaces.
@@ -117,12 +126,7 @@ function generateDownloadLink(filename, item) {
     //convert svg source to URI data scheme.
     var url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
 
-    //set url value to a element's href attribute.
-    var downloadLink = document.createElement("a");
-    downloadLink.id = filename + '-download';
-    downloadLink.href = url;
-    downloadLink.download = filename + '.svg';
-    return downloadLink;
+    return url;
 }
 
 const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

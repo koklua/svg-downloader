@@ -102,15 +102,27 @@ input[type="checkbox"]:checked::before {
     transform: scale(1);
 }
 
-svg {
+.svg-container {
     height: 80px;
     width: 80px;
     margin: 6px;
+}
+
+.svg-light-background {
     background: repeating-conic-gradient(#E3E8EB 0deg  90deg,#FFFFFF 0 180deg) 0 0/20% 20%;
 }
 
-svg.dark-background {
+.svg-dark-background {
     background: repeating-conic-gradient(#3D4348 0deg  90deg,#D1D9DF 0 180deg) 0 0/20% 20%;
+}
+
+.svg-preview {
+    height: 72px;
+    width: 72px;
+    margin: 4px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
 }
 
 .info-container {
