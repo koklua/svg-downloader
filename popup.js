@@ -83,16 +83,15 @@ async function listAllSVGElements() {
         dimensionsContainer.appendChild(lockButton);
 
         //add download button
-        var downloadLink = generateDownloadLink(li.id, item);
-        let downloadButton = document.createElement('button');
+        var downloadButton = generateDownloadLink(li.id, item);
+        downloadButton.classList.add('list-button');
         downloadButton.classList.add('download-button');
         downloadButton.title = 'Download';
         li.appendChild(downloadButton);
-        downloadButton.appendChild(downloadLink);
-        downloadButton.addEventListener("click", handleDownloadClick);
-
+        
         //add code copy button
         let copyButton = document.createElement('button');
+        copyButton.classList.add('list-button');
         copyButton.classList.add('copy-button');
         copyButton.title = 'Copy SVG as code'
         li.appendChild(copyButton);
@@ -116,7 +115,7 @@ function generateDownloadLink(filename, item) {
     source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
 
     //convert svg source to URI data scheme.
-    var url = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(source);
+    var url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
 
     //set url value to a element's href attribute.
     var downloadLink = document.createElement("a");
@@ -124,17 +123,6 @@ function generateDownloadLink(filename, item) {
     downloadLink.href = url;
     downloadLink.download = filename + '.svg';
     return downloadLink;
-}
-
-function handleDownloadClick(event) {
-    let linkElements = Array.from(event.target.parentElement.getElementsByTagName('a'));
-    
-    if (linkElements.length > 0) {
-        let downloadLink = linkElements[0]
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-    }
 }
 
 const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
