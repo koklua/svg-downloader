@@ -109,11 +109,11 @@ input[type="checkbox"]:checked::before {
 }
 
 .svg-light-background {
-    background: repeating-conic-gradient(#E3E8EB 0deg  90deg,#FFFFFF 0 180deg) 0 0/20% 20%;
+    background: repeating-conic-gradient(#E3E8EB 0deg  90deg,#FFFFFF 0 180deg) 0 0/10% 10%;
 }
 
 .svg-dark-background {
-    background: repeating-conic-gradient(#3D4348 0deg  90deg,#D1D9DF 0 180deg) 0 0/20% 20%;
+    background: repeating-conic-gradient(#3D4348 0deg  90deg,#D1D9DF 0 180deg) 0 0/10% 10%;
 }
 
 .svg-preview {
