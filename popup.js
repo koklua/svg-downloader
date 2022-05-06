@@ -16,8 +16,8 @@ async function listAllSVGElements() {
         let li = document.createElement('li');
         li.id = getRandomSvgName();
 
-        //generate download link for svg image 
-        var downloadLink = generateDownloadLink(item);
+        //generate data uri for svg image 
+        var dataUri = generateSVGDataUri(item);
 
         //add checkbox
         let checkbox = document.createElement('input');
@@ -33,7 +33,7 @@ async function listAllSVGElements() {
         svgContainer.classList.add('svg-light-background');
         let svgPreview = document.createElement('div');
         svgPreview.classList.add('svg-preview');
-        svgPreview.style.backgroundImage = 'url("' + downloadLink + '")';
+        svgPreview.style.backgroundImage = 'url("' + dataUri + '")';
         svgContainer.appendChild(svgPreview);
 
         //TO DO: get dimension info from the svg
@@ -91,7 +91,7 @@ async function listAllSVGElements() {
         //add download button
         var downloadButton = document.createElement("a");
         downloadButton.id = li.id + '-download';
-        downloadButton.href = downloadLink;
+        downloadButton.href = dataUri;
         downloadButton.download = li.id + '.svg';
         downloadButton.classList.add('list-button');
         downloadButton.classList.add('download-button');
@@ -109,7 +109,7 @@ async function listAllSVGElements() {
     };
 }
 
-function generateDownloadLink(item) {
+function generateSVGDataUri(item) {
     var source = item
     
     //add name spaces.
@@ -148,7 +148,6 @@ function updateSvgName(event) {
 }
 
 function onCheckboxInput(event) {
-    console.log(event.target.value);
     if(event.target.value === 'unchecked'){
         event.target.value = 'checked';
         event.target.parentElement.classList.add('list-selected');
