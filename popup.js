@@ -22,7 +22,6 @@ async function listAllSVGElements() {
         //add checkbox
         let checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.value = 'unchecked';
         li.appendChild(checkbox);
         checkbox.addEventListener('input', onCheckboxInput);
 
@@ -148,12 +147,10 @@ function updateSvgName(event) {
 }
 
 function onCheckboxInput(event) {
-    if(event.target.value === 'unchecked'){
-        event.target.value = 'checked';
+    if (event.target.checked) {
         event.target.parentElement.classList.add('list-selected');
     }
     else {
-        event.target.value = 'unchecked';
         event.target.parentElement.classList.remove('list-selected');
     }
 }
