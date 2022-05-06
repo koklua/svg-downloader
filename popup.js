@@ -1,3 +1,19 @@
+//object keeps track of how many list items are selected, dispatches event on count change
+var itemCounter = {
+    total: 0,
+    _selected: 0,
+    set selected(value) {
+        this._selected = value;
+        window.dispatchEvent(new CustomEvent('selectedChange'));
+    },
+    get selected() { 
+        return this._selected;
+    }
+};
+
+//window enables and disables footer buttons based on how many items are currently selected
+window.addEventListener('selectedChange', onSelectedChange);
+
 listAllSVGElements();
 
 async function listAllSVGElements() {
@@ -10,6 +26,7 @@ async function listAllSVGElements() {
         },
     });
 
+    itemCounter.total = response[0].result.length;
     let list = document.getElementById('svgList');
     for (const item of response[0].result) {
         //generate a list element for each svg found
@@ -149,8 +166,28 @@ function updateSvgName(event) {
 function onCheckboxInput(event) {
     if (event.target.checked) {
         event.target.parentElement.classList.add('list-selected');
+        itemCounter.selected += 1;
     }
     else {
         event.target.parentElement.classList.remove('list-selected');
+        itemCounter.selected -= 1;
+    }
+}
+
+function onSelectedChange() {
+    let downloadButton = document.getElementById('downloadSelected');
+    if (itemCounter.selected == 0) {
+        downloadButton.setAttribute('disabled', true);
+    }
+    else {
+        downloadButton.removeAttribute('disabled');
+    }
+
+    let selectButton = document.getElementById('selectAll');
+    if (itemCounter.selected == itemCounter.total) {
+        selectButton.setAttribute('disabled', true);
+    }
+    else {
+        selectButton.removeAttribute('disabled');
     }
 }

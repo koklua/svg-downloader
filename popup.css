@@ -236,10 +236,23 @@ input[type="checkbox"]:checked::before {
     font-weight: bold;
 }
 
+#selectAll:disabled {
+    cursor: default !important;
+}
+
+#selectAll:disabled > span {
+    color: var(--color-button) !important;
+}
+
 #downloadSelected {
     background-color: var(--color-highlight);
     width: 118px;
     height: 22px;
+}
+
+#downloadSelected:disabled {
+    background-color: var(--color-button) !important;
+    cursor: default !important;
 }
 
 #downloadSelected > span {
