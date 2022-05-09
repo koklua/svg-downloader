@@ -11,6 +11,8 @@ var itemCounter = {
     }
 };
 
+var svgDictionary = {};
+
 //window enables and disables footer buttons based on how many items are currently selected
 window.addEventListener('selectedChange', onSelectedChange);
 
@@ -33,8 +35,12 @@ async function listAllSVGElements() {
         let li = document.createElement('li');
         li.id = getRandomSvgName();
 
+        //store formatted svg in dictionary for "download selected"
+        var formattedSVG = formatSVGElement(item);
+        svgDictionary[li.id] = formattedSVG;
+
         //generate data uri for svg image 
-        var dataUri = generateSVGDataUri(item);
+        var dataUri = generateSVGDataUri(formattedSVG);
 
         //add checkbox
         let checkbox = document.createElement('input');
@@ -129,9 +135,8 @@ async function listAllSVGElements() {
     selectAllButton.addEventListener('click', selectAll);
 }
 
-function generateSVGDataUri(item) {
-    var source = item
-    
+function formatSVGElement(element) {
+    var source = element;
     //add name spaces.
     if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
         source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
@@ -141,12 +146,12 @@ function generateSVGDataUri(item) {
     }
 
     //add xml declaration
-    source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+    return '<?xml version="1.0" standalone="no"?>\r\n' + source;
+}
 
+function generateSVGDataUri(source) {
     //convert svg source to URI data scheme.
-    var url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
-
-    return url;
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
 }
 
 const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
