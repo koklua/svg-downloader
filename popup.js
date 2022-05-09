@@ -133,6 +133,9 @@ async function listAllSVGElements() {
     //add functions to footer buttons
     let selectAllButton = document.getElementById('selectAll');
     selectAllButton.addEventListener('click', selectAll);
+
+    let downloadSelectedButton = document.getElementById('downloadSelected');
+    downloadSelectedButton.addEventListener('click', downloadSelected);
 }
 
 function formatSVGElement(element) {
@@ -210,4 +213,22 @@ function onSelectedChange() {
     else {
         selectButton.removeAttribute('disabled');
     }
+}
+
+function downloadSelected () {
+    var zip = new JSZip();
+
+    let list = document.getElementById('svgList');
+    for (let i = 0; i < list.children.length; i++) {
+        let listItem = list.children[i];
+        if (listItem.firstChild.checked){
+            let fileName = listItem.children.namedItem(listItem.id + '-download').download;
+            zip.file(fileName, svgDictionary[listItem.id]);
+        }
+    }
+
+    zip.generateAsync({type:"blob"})
+        .then(function (blob) {
+            saveAs(blob, "svg_download.zip");
+        });  
 }
