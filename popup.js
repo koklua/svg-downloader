@@ -12,19 +12,103 @@ async function listAllSVGElements() {
 
     let list = document.getElementById('svgList');
     for (const item of response[0].result) {
+        //generate a list element for each svg found
         let li = document.createElement('li');
-        li.innerHTML = item;
-        var downloadLink = generateDownloadLink(item);
-        let button = document.createElement('button');
-        button.innerHTML = "Download";
-        li.appendChild(button);
+        li.id = getRandomSvgName();
+
+        //generate data uri for svg image 
+        var dataUri = generateSVGDataUri(item);
+
+        //add checkbox
+        let checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        li.appendChild(checkbox);
+        checkbox.addEventListener('input', onCheckboxInput);
+
+        //add svg display
+        let svgContainer = document.createElement('div');
+        li.appendChild(svgContainer);
+        svgContainer.classList.add('svg-container');
+        svgContainer.classList.add('svg-light-background');
+        let svgPreview = document.createElement('div');
+        svgPreview.classList.add('svg-preview');
+        svgPreview.style.backgroundImage = 'url("' + dataUri + '")';
+        svgContainer.appendChild(svgPreview);
+
+        //TO DO: get dimension info from the svg
+
+        let infoContainer = document.createElement('div');
+        infoContainer.classList.add('info-container');
+        li.appendChild(infoContainer);
+
+        //add name display
+        let nameContainer = document.createElement('div');
+        nameContainer.classList.add('name-container');
+        infoContainer.appendChild(nameContainer);
+
+        let nameLabel = document.createElement('span');
+        nameLabel.innerHTML = 'Name:';
+        nameContainer.appendChild(nameLabel);
+        let nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.id = li.id + '-name';
+        nameInput.value = li.id;
+        nameContainer.appendChild(nameInput);
+
+        //update file name on name input change (only fired on focus lost)
+        nameInput.addEventListener('change', updateSvgName);
+        
+        //add dimensions
+        let dimensionsContainer = document.createElement('div');
+        dimensionsContainer.classList.add('dimensions-container');
+        infoContainer.appendChild(dimensionsContainer);
+
+        let widthContainer = document.createElement('div');
+        dimensionsContainer.appendChild(widthContainer);
+        let widthLabel = document.createElement('span');
+        widthLabel.innerHTML = 'Width:';
+        widthContainer.appendChild(widthLabel);
+        let widthInput = document.createElement('input');
+        widthInput.type = 'text';
+        widthContainer.appendChild(widthInput);
+
+        let heightContainer = document.createElement('div');
+        dimensionsContainer.appendChild(heightContainer);
+        let heightLabel = document.createElement('span');
+        heightLabel.innerHTML = 'Height:';
+        heightContainer.appendChild(heightLabel);
+        let heightInput = document.createElement('input');
+        heightInput.type = 'text';
+        heightContainer.appendChild(heightInput);
+
+        //add aspect ratio lock
+        let lockButton = document.createElement('button');
+        lockButton.classList.add('lock-button');
+        lockButton.title = 'Maintain aspect ratio';
+        dimensionsContainer.appendChild(lockButton);
+
+        //add download button
+        var downloadButton = document.createElement("a");
+        downloadButton.id = li.id + '-download';
+        downloadButton.href = dataUri;
+        downloadButton.download = li.id + '.svg';
+        downloadButton.classList.add('list-button');
+        downloadButton.classList.add('download-button');
+        downloadButton.title = 'Download';
+        li.appendChild(downloadButton);
+        
+        //add code copy button
+        let copyButton = document.createElement('button');
+        copyButton.classList.add('list-button');
+        copyButton.classList.add('copy-button');
+        copyButton.title = 'Copy SVG as code'
+        li.appendChild(copyButton);
+
         list.append(li);
-        button.appendChild(downloadLink);
-        button.addEventListener("click", handleClick);
     };
 }
 
-function generateDownloadLink(item) {
+function generateSVGDataUri(item) {
     var source = item
     
     //add name spaces.
@@ -39,24 +123,9 @@ function generateDownloadLink(item) {
     source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
 
     //convert svg source to URI data scheme.
-    var url = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(source);
+    var url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
 
-    //set url value to a element's href attribute.
-    var downloadLink = document.createElement("a");
-    downloadLink.href = url;
-    downloadLink.download = getRandomSvgName();
-    return downloadLink;
-}
-
-function handleClick(event) {
-    let linkElements = Array.from(event.target.parentElement.getElementsByTagName('a'));
-    
-    if (linkElements.length > 0) {
-        let downloadLink = linkElements[0]
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-    }
+    return url;
 }
 
 const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -68,5 +137,20 @@ function getRandomSvgName() {
     for ( let i = 0; i < nameLength; i++ ) {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
-    return result + ".svg";
+    return result;
+}
+
+function updateSvgName(event) {
+    var svgId = event.target.id.split('-')[0];
+    var downloadLink = document.getElementById(svgId + '-download');
+    downloadLink.download = event.target.value + '.svg';
+}
+
+function onCheckboxInput(event) {
+    if (event.target.checked) {
+        event.target.parentElement.classList.add('list-selected');
+    }
+    else {
+        event.target.parentElement.classList.remove('list-selected');
+    }
 }

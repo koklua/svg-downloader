@@ -1,12 +1,25 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <title>SVG Downloader</title>
+    <meta charset="utf-8">
     <link rel="stylesheet" href="popup.css">
   </head>
   <body>
-    <div>
-      <ul id="svgList"></ul>
-    </div>
+    <header>SVG Downloader</header>
+    <main>
+      <div>
+        <ul id="svgList"></ul>
+      </div>
+    </main>
+    <footer>
+      <button id="selectAll">
+        <span>Select All</span>
+      </button>
+      <button id="downloadSelected">
+        <span>Download Selected</span>
+      </button>
+    </footer>
     <script src='popup.js'></script>
   </body>
 </html>
