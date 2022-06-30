@@ -223,12 +223,16 @@ function downloadSelected () {
         let listItem = list.children[i];
         if (listItem.firstChild.checked){
             let fileName = listItem.children.namedItem(listItem.id + '-download').download;
-            zip.file(fileName, svgDictionary[listItem.id]);
+            let content = new Blob([svgDictionary[listItem.id]], {type : 'image/svg+xml'});
+            zip.file(fileName, content);
         }
     }
 
-    zip.generateAsync({type:"blob"})
-        .then(function (blob) {
-            saveAs(blob, "svg_download.zip");
-        });  
+    zip.generateAsync({
+        type: "blob",
+        compression: "STORE"
+    }).then(function (blob) {
+        saveAs(blob, "svg_download.zip");
+    });
+    
 }
