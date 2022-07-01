@@ -1,3 +1,21 @@
+//object keeps track of how many list items are selected, dispatches event on count change
+var itemCounter = {
+    total: 0,
+    _selected: 0,
+    set selected(value) {
+        this._selected = value;
+        window.dispatchEvent(new CustomEvent('selectedChange'));
+    },
+    get selected() { 
+        return this._selected;
+    }
+};
+
+var svgDictionary = {};
+
+//window enables and disables footer buttons based on how many items are currently selected
+window.addEventListener('selectedChange', onSelectedChange);
+
 listAllSVGElements();
 
 async function listAllSVGElements() {
@@ -10,14 +28,19 @@ async function listAllSVGElements() {
         },
     });
 
+    itemCounter.total = response[0].result.length;
     let list = document.getElementById('svgList');
     for (const item of response[0].result) {
         //generate a list element for each svg found
         let li = document.createElement('li');
         li.id = getRandomSvgName();
 
+        //store formatted svg in dictionary for "download selected"
+        var formattedSVG = formatSVGElement(item);
+        svgDictionary[li.id] = formattedSVG;
+
         //generate data uri for svg image 
-        var dataUri = generateSVGDataUri(item);
+        var dataUri = generateSVGDataUri(formattedSVG);
 
         //add checkbox
         let checkbox = document.createElement('input');
@@ -106,11 +129,17 @@ async function listAllSVGElements() {
 
         list.append(li);
     };
+
+    //add functions to footer buttons
+    let selectAllButton = document.getElementById('selectAll');
+    selectAllButton.addEventListener('click', selectAll);
+
+    let downloadSelectedButton = document.getElementById('downloadSelected');
+    downloadSelectedButton.addEventListener('click', downloadSelected);
 }
 
-function generateSVGDataUri(item) {
-    var source = item
-    
+function formatSVGElement(element) {
+    var source = element;
     //add name spaces.
     if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
         source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
@@ -120,12 +149,12 @@ function generateSVGDataUri(item) {
     }
 
     //add xml declaration
-    source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+    return '<?xml version="1.0" standalone="no"?>\r\n' + source;
+}
 
+function generateSVGDataUri(source) {
     //convert svg source to URI data scheme.
-    var url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
-
-    return url;
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
 }
 
 const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -149,8 +178,61 @@ function updateSvgName(event) {
 function onCheckboxInput(event) {
     if (event.target.checked) {
         event.target.parentElement.classList.add('list-selected');
+        itemCounter.selected += 1;
     }
     else {
         event.target.parentElement.classList.remove('list-selected');
+        itemCounter.selected -= 1;
     }
+}
+
+function selectAll() {
+    let list = document.getElementById('svgList');
+    for (let i = 0; i < list.children.length; i++) {
+        if (list.children[i].firstChild.checked === false) {
+            list.children[i].classList.add('list-selected');
+            list.children[i].firstChild.checked = true;
+        }
+    }
+    itemCounter.selected = itemCounter.total;
+}
+
+function onSelectedChange() {
+    let downloadButton = document.getElementById('downloadSelected');
+    if (itemCounter.selected == 0) {
+        downloadButton.setAttribute('disabled', true);
+    }
+    else {
+        downloadButton.removeAttribute('disabled');
+    }
+
+    let selectButton = document.getElementById('selectAll');
+    if (itemCounter.selected == itemCounter.total) {
+        selectButton.setAttribute('disabled', true);
+    }
+    else {
+        selectButton.removeAttribute('disabled');
+    }
+}
+
+function downloadSelected () {
+    var zip = new JSZip();
+
+    let list = document.getElementById('svgList');
+    for (let i = 0; i < list.children.length; i++) {
+        let listItem = list.children[i];
+        if (listItem.firstChild.checked){
+            let fileName = listItem.children.namedItem(listItem.id + '-download').download;
+            let content = new Blob([svgDictionary[listItem.id]], {type : 'image/svg+xml'});
+            zip.file(fileName, content);
+        }
+    }
+
+    zip.generateAsync({
+        type: "blob",
+        compression: "STORE"
+    }).then(function (blob) {
+        saveAs(blob, "svg_download.zip");
+    });
+    
 }
