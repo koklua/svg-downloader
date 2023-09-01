@@ -52,7 +52,11 @@ async function listAllSVGElements() {
         let svgContainer = document.createElement('div');
         li.appendChild(svgContainer);
         svgContainer.classList.add('svg-container');
-        svgContainer.classList.add('svg-light-background');
+        if (weightedColor(formattedSVG) == Color.dark) {
+            svgContainer.classList.add('svg-light-background');
+        } else {
+            svgContainer.classList.add('svg-dark-background');
+        }
         let svgPreview = document.createElement('div');
         svgPreview.classList.add('svg-preview');
         svgPreview.style.backgroundImage = 'url("' + dataUri + '")';
