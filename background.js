@@ -2,6 +2,7 @@ const Color = {
 	light: 0,
 	dark: 1
 };
+const threshold = 220;
 
 // The simplest method for now. 
 // It takes the colors from all fill, stroke or style attributes, 
@@ -31,7 +32,7 @@ function weightedColor(svgElement) {
     }
 
     midValue /= colors.length;
-    if (midValue > 200) {
+    if (midValue > threshold) {
         return Color.light;
     } else {
         return Color.dark;
