@@ -1,3 +1,7 @@
+//constants for random svg name generation
+const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+const nameLength = 10;
+
 //object keeps track of how many list items are selected, dispatches event on count change
 var itemCounter = {
     total: 0,
@@ -12,6 +16,46 @@ var itemCounter = {
 };
 
 var svgDictionary = {};
+
+//svgItem class to better handle editing
+class svgItem {
+    id = "";
+    formattedSVG = "";
+    constructor(svgHtml) {
+        //generate random name
+        const charactersLength = characters.length;
+        for ( let i = 0; i < nameLength; i++ ) {
+            this.id += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+
+        var source = svgHtml;
+        //add name spaces.
+        if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
+            source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+        }
+        if(!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)){
+            source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+        }
+
+        //add xml declaration
+        this.formattedSVG = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+
+        //TODO dimensions and editing
+    }
+
+    get dataUri() {
+        //convert svg source to URI data scheme.
+        return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(this.formattedSVG);
+    }
+
+    get weightedColor() {
+        return weightedColor(this.formattedSVG);
+    }
+
+    updateFormattedSVG(){
+        //TODO
+    }
+  };
 
 //window enables and disables footer buttons based on how many items are currently selected
 window.addEventListener('selectedChange', onSelectedChange);
@@ -28,19 +72,22 @@ async function listAllSVGElements() {
         },
     });
 
+    //no svgs found
+    if (response[0].result === null)
+        return;
+
     itemCounter.total = response[0].result.length;
     let list = document.getElementById('svgList');
     for (const item of response[0].result) {
-        //generate a list element for each svg found
+        //generate svg object
+        let svgObj = new svgItem(item)
+
+        //store svg object in dictionary for "download selected" and dimension editing
+        svgDictionary[svgObj.id] = new svgItem(item);
+
+        //generate a list element
         let li = document.createElement('li');
-        li.id = getRandomSvgName();
-
-        //store formatted svg in dictionary for "download selected"
-        var formattedSVG = formatSVGElement(item);
-        svgDictionary[li.id] = formattedSVG;
-
-        //generate data uri for svg image 
-        var dataUri = generateSVGDataUri(formattedSVG);
+        li.id = svgObj.id;
 
         //add checkbox
         let checkbox = document.createElement('input');
@@ -52,17 +99,15 @@ async function listAllSVGElements() {
         let svgContainer = document.createElement('div');
         li.appendChild(svgContainer);
         svgContainer.classList.add('svg-container');
-        if (weightedColor(formattedSVG) == Color.dark) {
+        if (svgDictionary[li.id].weightedColor == Color.dark) {
             svgContainer.classList.add('svg-light-background');
         } else {
             svgContainer.classList.add('svg-dark-background');
         }
         let svgPreview = document.createElement('div');
         svgPreview.classList.add('svg-preview');
-        svgPreview.style.backgroundImage = 'url("' + dataUri + '")';
+        svgPreview.style.backgroundImage = 'url("' + svgDictionary[li.id].dataUri + '")';
         svgContainer.appendChild(svgPreview);
-
-        //TO DO: get dimension info from the svg
 
         let infoContainer = document.createElement('div');
         infoContainer.classList.add('info-container');
@@ -108,7 +153,6 @@ async function listAllSVGElements() {
         heightInput.type = 'text';
         heightContainer.appendChild(heightInput);
 
-        //add aspect ratio lock
         let lockButton = document.createElement('button');
         lockButton.classList.add('lock-button');
         lockButton.title = 'Maintain aspect ratio';
@@ -117,7 +161,7 @@ async function listAllSVGElements() {
         //add download button
         var downloadButton = document.createElement("a");
         downloadButton.id = li.id + '-download';
-        downloadButton.href = dataUri;
+        downloadButton.href = svgDictionary[li.id].dataUri;
         downloadButton.download = li.id + '.svg';
         downloadButton.classList.add('list-button');
         downloadButton.classList.add('download-button');
@@ -140,37 +184,6 @@ async function listAllSVGElements() {
 
     let downloadSelectedButton = document.getElementById('downloadSelected');
     downloadSelectedButton.addEventListener('click', downloadSelected);
-}
-
-function formatSVGElement(element) {
-    var source = element;
-    //add name spaces.
-    if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
-        source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
-    }
-    if(!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)){
-        source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
-    }
-
-    //add xml declaration
-    return '<?xml version="1.0" standalone="no"?>\r\n' + source;
-}
-
-function generateSVGDataUri(source) {
-    //convert svg source to URI data scheme.
-    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
-}
-
-const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-const nameLength = 10;
-
-function getRandomSvgName() {
-    let result = '';
-    const charactersLength = characters.length;
-    for ( let i = 0; i < nameLength; i++ ) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
 }
 
 function updateSvgName(event) {
@@ -227,7 +240,7 @@ function downloadSelected () {
         let listItem = list.children[i];
         if (listItem.firstChild.checked){
             let fileName = listItem.children.namedItem(listItem.id + '-download').download;
-            let content = new Blob([svgDictionary[listItem.id]], {type : 'image/svg+xml'});
+            let content = new Blob([svgDictionary[listItem.id].formattedSVG], {type : 'image/svg+xml'});
             zip.file(fileName, content);
         }
     }
