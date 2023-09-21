@@ -21,6 +21,10 @@ var svgDictionary = {};
 class svgItem {
     id = "";
     formattedSVG = "";
+    preserveAspectRatio = true;
+    viewBox = undefined;
+    width = undefined;
+    height = undefined;
     constructor(svgHtml) {
         //generate random name
         const charactersLength = characters.length;
@@ -37,10 +41,41 @@ class svgItem {
             source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
         }
 
+        //fill missing dimension attributes using the ones present
+        var matchViewBox = source.match(/viewBox\s*=\s*\"?([^\"]+)\"?/);
+        if(matchViewBox){
+            this.viewBox = matchViewBox[1];
+        }
+        var matchWidth = source.match(/width\s*=\s*\"?(\d+)\"?/);
+        if(matchWidth){
+            this.width = matchWidth[1];
+        }
+        var matchHeight = source.match(/height\s*=\s*\"?(\d+)\"?/);
+        if(matchWidth){
+            this.height = matchHeight[1];
+        }
+
+        if (this.viewBox == undefined){
+            if (this.width != undefined && this.height != undefined){
+                //case #1: only has width & height => insert viewBox
+                source = source.replace(/>/, ` viewBox="0 0 ${this.width} ${this.height}">`);
+            }
+            else{
+                //case #2: has nothing => leave empty until user input OR disable?
+            }
+        }
+        else {
+            if (this.width == undefined && this.height == undefined){
+                //case #3: only has viewBox => insert width + height
+                let viewBoxList = this.viewBox.split(' ');
+                this.width = viewBoxList[2];
+                this.height = viewBoxList[3];
+                source = source.replace(/>/, ` width="${this.width}" height="${this.height}">`);
+            }
+        }
+
         //add xml declaration
         this.formattedSVG = '<?xml version="1.0" standalone="no"?>\r\n' + source;
-
-        //TODO dimensions and editing
     }
 
     get dataUri() {
@@ -142,6 +177,7 @@ async function listAllSVGElements() {
         widthContainer.appendChild(widthLabel);
         let widthInput = document.createElement('input');
         widthInput.type = 'text';
+        widthInput.value = svgDictionary[li.id].width;
         widthContainer.appendChild(widthInput);
 
         let heightContainer = document.createElement('div');
@@ -151,6 +187,7 @@ async function listAllSVGElements() {
         heightContainer.appendChild(heightLabel);
         let heightInput = document.createElement('input');
         heightInput.type = 'text';
+        heightInput.value = svgDictionary[li.id].height;
         heightContainer.appendChild(heightInput);
 
         let lockButton = document.createElement('button');
