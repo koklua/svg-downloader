@@ -25,6 +25,8 @@ class svgItem {
     viewBox = undefined;
     width = undefined;
     height = undefined;
+    initialAspectRatio = 1;
+    isDimensionsChanged = false; //TODO update with width/height setter
     constructor(svgHtml) {
         //generate random name
         const charactersLength = characters.length;
@@ -74,6 +76,9 @@ class svgItem {
             }
         }
 
+        //preserve initial aspect ratio in case either dimension is made 0 through input
+        this.initialAspectRatio = this.width / this.height;
+
         //add xml declaration
         this.formattedSVG = '<?xml version="1.0" standalone="no"?>\r\n' + source;
     }
@@ -87,8 +92,17 @@ class svgItem {
         return weightedColor(this.formattedSVG);
     }
 
+    get aspectRatio(){
+        if (this.preserveAspectRatio || this.width === NaN || this.height === NaN || this.width === 0 || this.height == 0){
+            return this.initialAspectRatio;
+        }
+        else{
+            return this.width / this.height;
+        }
+    }
+
     updateFormattedSVG(){
-        //TODO
+        //TODO update dimensions and preserveAspectRatio if isDimensionsChanged
     }
   };
 
@@ -176,8 +190,11 @@ async function listAllSVGElements() {
         widthLabel.innerHTML = 'Width:';
         widthContainer.appendChild(widthLabel);
         let widthInput = document.createElement('input');
-        widthInput.type = 'text';
+        widthInput.id = li.id + '-width';
+        widthInput.type = 'number';
+        widthInput.step = 0.01;
         widthInput.value = svgDictionary[li.id].width;
+        widthInput.addEventListener('input', svgDimensionsChanged);
         widthContainer.appendChild(widthInput);
 
         let heightContainer = document.createElement('div');
@@ -186,19 +203,25 @@ async function listAllSVGElements() {
         heightLabel.innerHTML = 'Height:';
         heightContainer.appendChild(heightLabel);
         let heightInput = document.createElement('input');
-        heightInput.type = 'text';
+        heightInput.id = li.id + '-height';
+        heightInput.type = 'number';
+        heightInput.step = 0.01;
         heightInput.value = svgDictionary[li.id].height;
+        heightInput.addEventListener('input', svgDimensionsChanged);
         heightContainer.appendChild(heightInput);
 
         let lockButton = document.createElement('button');
-        lockButton.classList.add('lock-button');
+        lockButton.id = li.id + '-lock';
+        lockButton.classList.add('unlock-button');
         lockButton.title = 'Maintain aspect ratio';
+        lockButton.addEventListener('click', toggleAspectRatio);
         dimensionsContainer.appendChild(lockButton);
+
 
         //add download button
         var downloadButton = document.createElement("a");
         downloadButton.id = li.id + '-download';
-        downloadButton.href = svgDictionary[li.id].dataUri;
+        downloadButton.href = svgDictionary[li.id].dataUri; //TODO update on dimension change
         downloadButton.download = li.id + '.svg';
         downloadButton.classList.add('list-button');
         downloadButton.classList.add('download-button');
@@ -229,6 +252,32 @@ function updateSvgName(event) {
     downloadLink.download = event.target.value + '.svg';
 }
 
+function svgDimensionsChanged(event) {
+    var id = event.target.id.split('-')[0];
+    var dimension = event.target.id.split('-')[1];
+    var value = Number(event.target.value);
+    updateSvgDimensions(id, dimension, value);
+}
+
+function updateSvgDimensions(id, changedDimension, value){
+    if (changedDimension == 'width'){
+        svgDictionary[id].width = value;
+        if (svgDictionary[id].preserveAspectRatio) {
+            svgDictionary[id].height = svgDictionary[id].width / svgDictionary[id].aspectRatio;
+            var heightInput = document.getElementById(id + '-height');
+            heightInput.value = svgDictionary[id].height;
+        }
+    }
+    else if (changedDimension == 'height'){
+        svgDictionary[id].height = value;
+        if (svgDictionary[id].preserveAspectRatio) {
+            svgDictionary[id].width = svgDictionary[id].height * svgDictionary[id].aspectRatio;
+            var widthInput = document.getElementById(id + '-width');
+            widthInput.value = svgDictionary[id].width;
+        }
+    }
+}
+
 function onCheckboxInput(event) {
     if (event.target.checked) {
         event.target.parentElement.classList.add('list-selected');
@@ -237,6 +286,21 @@ function onCheckboxInput(event) {
     else {
         event.target.parentElement.classList.remove('list-selected');
         itemCounter.selected -= 1;
+    }
+}
+
+function toggleAspectRatio(event) {
+    var id = event.target.id.split('-')[0];
+    if (svgDictionary[id].preserveAspectRatio){
+        svgDictionary[id].preserveAspectRatio = false;
+        event.target.classList.remove('unlock-button');
+        event.target.classList.add('lock-button');
+    }
+    else {
+        svgDictionary[id].preserveAspectRatio = true;
+        event.target.classList.remove('lock-button');
+        event.target.classList.add('unlock-button');
+        updateSvgDimensions(id, 'width', svgDictionary[id].width)
     }
 }
 
@@ -276,6 +340,7 @@ function downloadSelected () {
     for (let i = 0; i < list.children.length; i++) {
         let listItem = list.children[i];
         if (listItem.firstChild.checked){
+            svgDictionary[listItem.id].updateFormattedSVG();
             let fileName = listItem.children.namedItem(listItem.id + '-download').download;
             let content = new Blob([svgDictionary[listItem.id].formattedSVG], {type : 'image/svg+xml'});
             zip.file(fileName, content);
