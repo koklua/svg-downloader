@@ -2,6 +2,12 @@
 const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 const nameLength = 10;
 
+//constants for svg manipulation
+const viewBoxMatcher = /viewBox\s*=\s*\"?([^\"]+)\"?/;
+const widthMatcher = /width\s*=\s*\"?(\d+)\"?/;
+const heightMatcher = /height\s*=\s*\"?(\d+)\"?/;
+const aspectRatioMatcher = /preserveAspectRatio\s*=\s*\"?([^\"]+)\"?/;
+
 //object keeps track of how many list items are selected, dispatches event on count change
 var itemCounter = {
     total: 0,
@@ -22,6 +28,7 @@ class svgItem {
     id = "";
     formattedSVG = "";
     preserveAspectRatio = true;
+    aspectRatioType = undefined; //default xMidYMid meet
     viewBox = undefined;
     _width = undefined;
     _height = undefined;
@@ -43,17 +50,28 @@ class svgItem {
         }
 
         //fill missing dimension attributes using the ones present
-        var matchViewBox = source.match(/viewBox\s*=\s*\"?([^\"]+)\"?/);
+        var matchViewBox = source.match(viewBoxMatcher);
         if(matchViewBox){
             this.viewBox = matchViewBox[1];
         }
-        var matchWidth = source.match(/width\s*=\s*\"?(\d+)\"?/);
+        var matchWidth = source.match(widthMatcher);
         if(matchWidth){
             this._width = matchWidth[1];
         }
-        var matchHeight = source.match(/height\s*=\s*\"?(\d+)\"?/);
+        var matchHeight = source.match(heightMatcher);
         if(matchWidth){
             this._height = matchHeight[1];
+        }
+        var matchRatio = source.match(aspectRatioMatcher);
+        if(matchRatio){
+            this.preserveAspectRatioType = matchRatio[1];
+            if(this.preserveAspectRatioType == "none"){
+                this.preserveAspectRatio = false;
+            }
+        }
+        else{
+            //insert default aspect ratio attribute
+            source = source.replace(/>/, ` preserveAspectRatio="xMidYMid meet">`);
         }
 
         if (this.viewBox == undefined){
@@ -63,6 +81,7 @@ class svgItem {
             }
             else{
                 //case #2: has nothing => leave empty until user input OR disable?
+                //TODO
             }
         }
         else {
@@ -102,9 +121,9 @@ class svgItem {
 
     set width(value) {
         if (this._width != value){
-            this._width = value;
+            this._width = trimNumber(value);
             if (this.preserveAspectRatio){
-                this._height = this._width / this.aspectRatio;
+                this._height = trimNumber(this._width / this.aspectRatio);
             }
             this.updateFormattedSVG();
         }
@@ -115,9 +134,9 @@ class svgItem {
 
     set height(value) {
         if (this._height != value) {
-            this._height = value;
+            this._height = trimNumber(value);
             if (this.preserveAspectRatio){
-                this._width = this._height * this.aspectRatio;
+                this._width = trimNumber(this._height * this.aspectRatio);
             }
             this.updateFormattedSVG();
         }
@@ -127,8 +146,24 @@ class svgItem {
     }
 
     updateFormattedSVG(){
-        //TODO update dimensions and preserveAspectRatio
-        
+        let source = this.formattedSVG;
+        source = source.replace(widthMatcher, `width="${this.width}"`);
+        source = source.replace(heightMatcher, `height="${this.height}"`);
+        let preserveAspectRatioReplacement = "";
+        if (this.preserveAspectRatio){
+            if (this.aspectRatioType != undefined){
+                preserveAspectRatioReplacement = `preserveAspectRatio="${this.aspectRatioType}"`;
+            }
+            else{
+                preserveAspectRatioReplacement = `preserveAspectRatio="xMidYMid meet"`;
+            }
+        }
+        else{
+            preserveAspectRatioReplacement = `preserveAspectRatio="none"`;
+        }
+        source = source.replace(aspectRatioMatcher, preserveAspectRatioReplacement);
+        this.formattedSVG = source;
+
         const event = new CustomEvent('svgUpdate', { detail: this.id });
         window.dispatchEvent(event);
     }
@@ -388,4 +423,14 @@ function downloadSelected () {
         saveAs(blob, "svg_download.zip");
     });
     
+}
+
+function trimNumber(number){
+    if(number === NaN){
+        return 0;
+    }
+    if(number.toString().indexOf(".") == -1){
+        return number;
+    }
+    return number.toFixed(1);
 }
