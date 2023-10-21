@@ -23,10 +23,9 @@ class svgItem {
     formattedSVG = "";
     preserveAspectRatio = true;
     viewBox = undefined;
-    width = undefined;
-    height = undefined;
+    _width = undefined;
+    _height = undefined;
     initialAspectRatio = 1;
-    isDimensionsChanged = false; //TODO update with width/height setter
     constructor(svgHtml) {
         //generate random name
         const charactersLength = characters.length;
@@ -50,11 +49,11 @@ class svgItem {
         }
         var matchWidth = source.match(/width\s*=\s*\"?(\d+)\"?/);
         if(matchWidth){
-            this.width = matchWidth[1];
+            this._width = matchWidth[1];
         }
         var matchHeight = source.match(/height\s*=\s*\"?(\d+)\"?/);
         if(matchWidth){
-            this.height = matchHeight[1];
+            this._height = matchHeight[1];
         }
 
         if (this.viewBox == undefined){
@@ -70,8 +69,8 @@ class svgItem {
             if (this.width == undefined && this.height == undefined){
                 //case #3: only has viewBox => insert width + height
                 let viewBoxList = this.viewBox.split(' ');
-                this.width = viewBoxList[2];
-                this.height = viewBoxList[3];
+                this._width = viewBoxList[2];
+                this._height = viewBoxList[3];
                 source = source.replace(/>/, ` width="${this.width}" height="${this.height}">`);
             }
         }
@@ -101,13 +100,45 @@ class svgItem {
         }
     }
 
+    set width(value) {
+        if (this._width != value){
+            this._width = value;
+            if (this.preserveAspectRatio){
+                this._height = this._width / this.aspectRatio;
+            }
+            this.updateFormattedSVG();
+        }
+    }
+    get width() { 
+        return this._width;
+    }
+
+    set height(value) {
+        if (this._height != value) {
+            this._height = value;
+            if (this.preserveAspectRatio){
+                this._width = this._height * this.aspectRatio;
+            }
+            this.updateFormattedSVG();
+        }
+    }
+    get height() { 
+        return this._height;
+    }
+
     updateFormattedSVG(){
-        //TODO update dimensions and preserveAspectRatio if isDimensionsChanged
+        //TODO update dimensions and preserveAspectRatio
+        
+        const event = new CustomEvent('svgUpdate', { detail: this.id });
+        window.dispatchEvent(event);
     }
   };
 
 //window enables and disables footer buttons based on how many items are currently selected
 window.addEventListener('selectedChange', onSelectedChange);
+
+//window updates individual download button uri's on svg updates
+window.addEventListener('svgUpdate', onSVGUpdated);
 
 listAllSVGElements();
 
@@ -132,7 +163,7 @@ async function listAllSVGElements() {
         let svgObj = new svgItem(item)
 
         //store svg object in dictionary for "download selected" and dimension editing
-        svgDictionary[svgObj.id] = new svgItem(item);
+        svgDictionary[svgObj.id] = svgObj;
 
         //generate a list element
         let li = document.createElement('li');
@@ -221,7 +252,7 @@ async function listAllSVGElements() {
         //add download button
         var downloadButton = document.createElement("a");
         downloadButton.id = li.id + '-download';
-        downloadButton.href = svgDictionary[li.id].dataUri; //TODO update on dimension change
+        downloadButton.href = svgDictionary[li.id].dataUri; 
         downloadButton.download = li.id + '.svg';
         downloadButton.classList.add('list-button');
         downloadButton.classList.add('download-button');
@@ -248,8 +279,8 @@ async function listAllSVGElements() {
 
 function updateSvgName(event) {
     var svgId = event.target.id.split('-')[0];
-    var downloadLink = document.getElementById(svgId + '-download');
-    downloadLink.download = event.target.value + '.svg';
+    var downloadButton = document.getElementById(svgId + '-download');
+    downloadButton.download = event.target.value + '.svg';
 }
 
 function svgDimensionsChanged(event) {
@@ -263,7 +294,6 @@ function updateSvgDimensions(id, changedDimension, value){
     if (changedDimension == 'width'){
         svgDictionary[id].width = value;
         if (svgDictionary[id].preserveAspectRatio) {
-            svgDictionary[id].height = svgDictionary[id].width / svgDictionary[id].aspectRatio;
             var heightInput = document.getElementById(id + '-height');
             heightInput.value = svgDictionary[id].height;
         }
@@ -271,7 +301,6 @@ function updateSvgDimensions(id, changedDimension, value){
     else if (changedDimension == 'height'){
         svgDictionary[id].height = value;
         if (svgDictionary[id].preserveAspectRatio) {
-            svgDictionary[id].width = svgDictionary[id].height * svgDictionary[id].aspectRatio;
             var widthInput = document.getElementById(id + '-width');
             widthInput.value = svgDictionary[id].width;
         }
@@ -313,6 +342,11 @@ function selectAll() {
         }
     }
     itemCounter.selected = itemCounter.total;
+}
+
+function onSVGUpdated(event){
+    var downloadButton = document.getElementById(event.detail + '-download');
+    downloadButton.href = svgDictionary[event.detail].dataUri; 
 }
 
 function onSelectedChange() {
