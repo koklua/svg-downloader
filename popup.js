@@ -2,6 +2,12 @@
 const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 const nameLength = 10;
 
+//constants for svg manipulation
+const viewBoxMatcher = /viewBox\s*=\s*\"?([^\"]+)\"?/;
+const widthMatcher = /width\s*=\s*\"?(\d+)\"?/;
+const heightMatcher = /height\s*=\s*\"?(\d+)\"?/;
+const aspectRatioMatcher = /preserveAspectRatio\s*=\s*\"?([^\"]+)\"?/;
+
 //object keeps track of how many list items are selected, dispatches event on count change
 var itemCounter = {
     total: 0,
@@ -21,6 +27,12 @@ var svgDictionary = {};
 class svgItem {
     id = "";
     formattedSVG = "";
+    preserveAspectRatio = true;
+    aspectRatioType = undefined; //default xMidYMid meet
+    viewBox = undefined;
+    _width = undefined;
+    _height = undefined;
+    initialAspectRatio = 1;
     constructor(svgHtml) {
         //generate random name
         const charactersLength = characters.length;
@@ -37,10 +49,56 @@ class svgItem {
             source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
         }
 
+        //fill missing dimension attributes using the ones present
+        var matchViewBox = source.match(viewBoxMatcher);
+        if(matchViewBox){
+            this.viewBox = matchViewBox[1];
+        }
+        var matchWidth = source.match(widthMatcher);
+        if(matchWidth){
+            this._width = matchWidth[1];
+        }
+        var matchHeight = source.match(heightMatcher);
+        if(matchWidth){
+            this._height = matchHeight[1];
+        }
+        var matchRatio = source.match(aspectRatioMatcher);
+        if(matchRatio){
+            this.preserveAspectRatioType = matchRatio[1];
+            if(this.preserveAspectRatioType == "none"){
+                this.preserveAspectRatio = false;
+            }
+        }
+        else{
+            //insert default aspect ratio attribute
+            source = source.replace(/>/, ` preserveAspectRatio="xMidYMid meet">`);
+        }
+
+        if (this.viewBox == undefined){
+            if (this.width != undefined && this.height != undefined){
+                //case #1: only has width & height => insert viewBox
+                source = source.replace(/>/, ` viewBox="0 0 ${this.width} ${this.height}">`);
+            }
+            else{
+                //case #2: has nothing => leave empty until user input OR disable?
+                //TODO
+            }
+        }
+        else {
+            if (this.width == undefined && this.height == undefined){
+                //case #3: only has viewBox => insert width + height
+                let viewBoxList = this.viewBox.split(' ');
+                this._width = viewBoxList[2];
+                this._height = viewBoxList[3];
+                source = source.replace(/>/, ` width="${this.width}" height="${this.height}">`);
+            }
+        }
+
+        //preserve initial aspect ratio in case either dimension is made 0 through input
+        this.initialAspectRatio = this.width / this.height;
+
         //add xml declaration
         this.formattedSVG = '<?xml version="1.0" standalone="no"?>\r\n' + source;
-
-        //TODO dimensions and editing
     }
 
     get dataUri() {
@@ -52,13 +110,70 @@ class svgItem {
         return weightedColor(this.formattedSVG);
     }
 
+    get aspectRatio(){
+        if (this.preserveAspectRatio || this.width === NaN || this.height === NaN || this.width === 0 || this.height == 0){
+            return this.initialAspectRatio;
+        }
+        else{
+            return this.width / this.height;
+        }
+    }
+
+    set width(value) {
+        if (this._width != value){
+            this._width = trimNumber(value);
+            if (this.preserveAspectRatio){
+                this._height = trimNumber(this._width / this.aspectRatio);
+            }
+            this.updateFormattedSVG();
+        }
+    }
+    get width() { 
+        return this._width;
+    }
+
+    set height(value) {
+        if (this._height != value) {
+            this._height = trimNumber(value);
+            if (this.preserveAspectRatio){
+                this._width = trimNumber(this._height * this.aspectRatio);
+            }
+            this.updateFormattedSVG();
+        }
+    }
+    get height() { 
+        return this._height;
+    }
+
     updateFormattedSVG(){
-        //TODO
+        let source = this.formattedSVG;
+        source = source.replace(widthMatcher, `width="${this.width}"`);
+        source = source.replace(heightMatcher, `height="${this.height}"`);
+        let preserveAspectRatioReplacement = "";
+        if (this.preserveAspectRatio){
+            if (this.aspectRatioType != undefined){
+                preserveAspectRatioReplacement = `preserveAspectRatio="${this.aspectRatioType}"`;
+            }
+            else{
+                preserveAspectRatioReplacement = `preserveAspectRatio="xMidYMid meet"`;
+            }
+        }
+        else{
+            preserveAspectRatioReplacement = `preserveAspectRatio="none"`;
+        }
+        source = source.replace(aspectRatioMatcher, preserveAspectRatioReplacement);
+        this.formattedSVG = source;
+
+        const event = new CustomEvent('svgUpdate', { detail: this.id });
+        window.dispatchEvent(event);
     }
   };
 
 //window enables and disables footer buttons based on how many items are currently selected
 window.addEventListener('selectedChange', onSelectedChange);
+
+//window updates individual download button uri's on svg updates
+window.addEventListener('svgUpdate', onSVGUpdated);
 
 listAllSVGElements();
 
@@ -83,7 +198,7 @@ async function listAllSVGElements() {
         let svgObj = new svgItem(item)
 
         //store svg object in dictionary for "download selected" and dimension editing
-        svgDictionary[svgObj.id] = new svgItem(item);
+        svgDictionary[svgObj.id] = svgObj;
 
         //generate a list element
         let li = document.createElement('li');
@@ -141,7 +256,11 @@ async function listAllSVGElements() {
         widthLabel.innerHTML = 'Width:';
         widthContainer.appendChild(widthLabel);
         let widthInput = document.createElement('input');
-        widthInput.type = 'text';
+        widthInput.id = li.id + '-width';
+        widthInput.type = 'number';
+        widthInput.step = 0.01;
+        widthInput.value = svgDictionary[li.id].width;
+        widthInput.addEventListener('input', svgDimensionsChanged);
         widthContainer.appendChild(widthInput);
 
         let heightContainer = document.createElement('div');
@@ -150,18 +269,25 @@ async function listAllSVGElements() {
         heightLabel.innerHTML = 'Height:';
         heightContainer.appendChild(heightLabel);
         let heightInput = document.createElement('input');
-        heightInput.type = 'text';
+        heightInput.id = li.id + '-height';
+        heightInput.type = 'number';
+        heightInput.step = 0.01;
+        heightInput.value = svgDictionary[li.id].height;
+        heightInput.addEventListener('input', svgDimensionsChanged);
         heightContainer.appendChild(heightInput);
 
         let lockButton = document.createElement('button');
-        lockButton.classList.add('lock-button');
+        lockButton.id = li.id + '-lock';
+        lockButton.classList.add('unlock-button');
         lockButton.title = 'Maintain aspect ratio';
+        lockButton.addEventListener('click', toggleAspectRatio);
         dimensionsContainer.appendChild(lockButton);
+
 
         //add download button
         var downloadButton = document.createElement("a");
         downloadButton.id = li.id + '-download';
-        downloadButton.href = svgDictionary[li.id].dataUri;
+        downloadButton.href = svgDictionary[li.id].dataUri; 
         downloadButton.download = li.id + '.svg';
         downloadButton.classList.add('list-button');
         downloadButton.classList.add('download-button');
@@ -188,8 +314,32 @@ async function listAllSVGElements() {
 
 function updateSvgName(event) {
     var svgId = event.target.id.split('-')[0];
-    var downloadLink = document.getElementById(svgId + '-download');
-    downloadLink.download = event.target.value + '.svg';
+    var downloadButton = document.getElementById(svgId + '-download');
+    downloadButton.download = event.target.value + '.svg';
+}
+
+function svgDimensionsChanged(event) {
+    var id = event.target.id.split('-')[0];
+    var dimension = event.target.id.split('-')[1];
+    var value = Number(event.target.value);
+    updateSvgDimensions(id, dimension, value);
+}
+
+function updateSvgDimensions(id, changedDimension, value){
+    if (changedDimension == 'width'){
+        svgDictionary[id].width = value;
+        if (svgDictionary[id].preserveAspectRatio) {
+            var heightInput = document.getElementById(id + '-height');
+            heightInput.value = svgDictionary[id].height;
+        }
+    }
+    else if (changedDimension == 'height'){
+        svgDictionary[id].height = value;
+        if (svgDictionary[id].preserveAspectRatio) {
+            var widthInput = document.getElementById(id + '-width');
+            widthInput.value = svgDictionary[id].width;
+        }
+    }
 }
 
 function onCheckboxInput(event) {
@@ -203,6 +353,21 @@ function onCheckboxInput(event) {
     }
 }
 
+function toggleAspectRatio(event) {
+    var id = event.target.id.split('-')[0];
+    if (svgDictionary[id].preserveAspectRatio){
+        svgDictionary[id].preserveAspectRatio = false;
+        event.target.classList.remove('unlock-button');
+        event.target.classList.add('lock-button');
+    }
+    else {
+        svgDictionary[id].preserveAspectRatio = true;
+        event.target.classList.remove('lock-button');
+        event.target.classList.add('unlock-button');
+        updateSvgDimensions(id, 'width', svgDictionary[id].width)
+    }
+}
+
 function selectAll() {
     let list = document.getElementById('svgList');
     for (let i = 0; i < list.children.length; i++) {
@@ -212,6 +377,11 @@ function selectAll() {
         }
     }
     itemCounter.selected = itemCounter.total;
+}
+
+function onSVGUpdated(event){
+    var downloadButton = document.getElementById(event.detail + '-download');
+    downloadButton.href = svgDictionary[event.detail].dataUri; 
 }
 
 function onSelectedChange() {
@@ -239,6 +409,7 @@ function downloadSelected () {
     for (let i = 0; i < list.children.length; i++) {
         let listItem = list.children[i];
         if (listItem.firstChild.checked){
+            svgDictionary[listItem.id].updateFormattedSVG();
             let fileName = listItem.children.namedItem(listItem.id + '-download').download;
             let content = new Blob([svgDictionary[listItem.id].formattedSVG], {type : 'image/svg+xml'});
             zip.file(fileName, content);
@@ -252,4 +423,14 @@ function downloadSelected () {
         saveAs(blob, "svg_download.zip");
     });
     
+}
+
+function trimNumber(number){
+    if(number === NaN){
+        return 0;
+    }
+    if(number.toString().indexOf(".") == -1){
+        return number;
+    }
+    return number.toFixed(1);
 }
